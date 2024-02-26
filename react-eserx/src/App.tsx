@@ -1,30 +1,67 @@
 
 import './App.css';
-import { useState } from 'react';
+import { useState, useContext,createContext } from 'react';
+
+interface CounterContextProps {
+  count: number;
+  incremento: () => void;
+  decremento: () => void;
+}
+
+const CounterContext = createContext<CounterContextProps | undefined>(undefined);
 
 function App() {
-  const [state, setState] = useState(0);
+  const [count, setCount ] = useState(0);
 
-  function onClickPlus() {
-    setState(state + 1);
-  }
-  function onClickMinus() {
-    if (state > 0) {
-      setState(state - 1);
+ const incremento = () => {
+    setCount(count + 1);
+  };
+  const decremento = () => {
+    if(count > 0){
+      setCount(count - 1);
     }
     
-  }
-  const counterStyle = {
-    color: state === 0 ? 'red' : 'black',
   };
+  
 
   return (
-    <div>
-      <button onClick={onClickPlus}>aggiungi</button>
-      <span style={counterStyle}>{state}</span>
-      <button onClick={onClickMinus}>diminuisci</button>
+    <div style={{textAlign: 'center'}}>
+      <CounterContext.Provider value={{count, incremento, decremento}}>
+        <Counter/>
+        <Buttons/>
+      </CounterContext.Provider>
+      
+     
     </div>
+  );
+}
+const Counter = () => {
+  const context = useContext(CounterContext);
+  if(!context){
+    throw new Error('Error');
+  }
+  const {count} = context;
+  return (
+    <div>
+      <h1>{count}</h1>
+    </div>
+    
   )
+}
+const Buttons = () => {
+  
+ const context = useContext(CounterContext);
+ if(!context){
+   throw new Error('Error');
+ }
+ const {incremento, decremento} = context;
+ 
+ return (
+   <div>
+     <button  onClick={incremento}>incremento</button>
+     <button disabled={context.count === 0 ? true : false} onClick={decremento}>decremento</button>
+   </div>
+ )
 }
 
 export default App;
